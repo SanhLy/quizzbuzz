@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>Quiz master</title>
+    </head>
+ <style media="screen" type="text/css">
+    #connected-teams > table, tr, td {
+        border:1px solid black;
+        width: 100%;
+    }
+    td.teamName {
+        width:50%;
+    }
+    #logArea {
+        border:1px solid black;
+        width: 100%;
+        height:200px;
+        overflow-y:auto;
+    }
+
+</style>
+    <body>
+        <h1>Quiz master</h1>
+         <table id="connected-teams"></table>
+
+         <p><input type="text" id="feed" /><input type="button" value="Send message to players" id="poke" /></p>
+         <p><input type="button" value="Launch round!" id="start" /></p>
+         <!-- <p><input type="button" value="Round stops!" id="stop" /></p> -->
+         <div id="logArea"></div>
+
+
+        <script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
+        <script src="/socket.io/socket.io.js"></script>
+        <script>
+            function displayLog(message){
+                var logDate = new Date();
+
+                $('#logArea').append(logDate.getHours()+':'+logDate.getMinutes()+':'+logDate.getSeconds()+','+logDate.getMilliseconds()+":"+message);
+                $("#logArea").scrollTop($("#logArea")[0].scrollHeight);
+            }
+            
+            //-----------------------------------------------------------
+
+            var socket = io.connect('<%= baseAddress %>/');
+            socket.emit('master-connection');
+
+            socket.on('teamList',function(teamList){
+                 $('#connected-teams').html("");
+                for (index = 0; index < teamList.length; index++) {
+                    $('#connected-teams').append('<tr><td class=\'teamName\'>'+teamList[index].teamName+'</td><td>'+teamList[index].buzzOrder+'</td><td>'+teamList[index].teamSocketId+'</td></tr>');
+                }    
+            });
+
+
+             $('#start').click(function () {
+                socket.emit('start');
+                displayLog('New round begins<br/>');
+
+            });
+
+             $('#poke').click(function () {
+                socket.emit('message', $('#feed').val());
+                displayLog.append('master :'+$('#feed').val()+"<br/>");
+
+            })
+        </script>
+    </body>
+</html>

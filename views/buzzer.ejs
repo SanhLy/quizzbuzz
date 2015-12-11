@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>Buzz</title>
+    </head>
+  <style media="screen" type="text/css">
+
+    #imgContainer {
+        width:100%;
+    }
+    #imgContainer > img {
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    #textBuzz {
+        text-align:center;
+    }
+
+        
+</style>
+    <body>
+
+        <div id="imgContainer">
+            <img id="imgBuzzDisabled" src="<%=baseAddress%>/images/RoundButtonUnpressed.png" width="65%" />
+            <img id="imgBuzzEnabled" src="<%=baseAddress%>/images/RoundButtonHover.png" width="65%" style="display:none"/>
+            <img id="imgLikeASir" src="<%=baseAddress%>/images/sir.gif" style="display:none">
+        </div>
+        <h1 id="textBuzz">
+                <%= teamName %>
+        </h1>
+        <p style="text-align:center;">[<a href="<%=baseAddress%>/">Change team name</a>]</p>
+
+
+        <script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
+        <script src="/socket.io/socket.io.js"></script>
+        <script>
+            var audioElement = document.createElement('audio');
+            audioElement.setAttribute('src', '<%=baseAddress%>/sounds/MarioJump.wav');
+            $.get();
+
+
+            //Disable the buzzer
+            function disableBuzzer(message) {
+                $('#imgBuzzEnabled').hide();
+                $('#imgBuzzDisabled').show();
+                $('#imgLikeASir').hide();
+            }
+
+            //Shows the 'like a Sir' guy
+            function first(){
+                $('#imgBuzzEnabled').hide();
+                $('#imgBuzzDisabled').hide();  
+                $('#imgLikeASir').show();
+            }
+
+            //Enable the buzzer
+            function enableBuzzer() {
+                $('#textBuzz').html('<%=teamName%>');
+                $('#imgBuzzEnabled').show();
+                $('#imgBuzzDisabled').hide();
+                $('#imgLikeASir').hide();
+            }
+
+            //-----------------------------------------------------------
+            
+            var socket = io.connect('<%=baseAddress%>/');
+            socket.emit('team-connection','<%= teamName %>');
+            socket.on('displayMessage',function(message){
+                 alert(message);
+            });
+
+            socket.on('order',function(teamList){
+                $('#textBuzz').html("");
+                teamList = teamList.filter(function (el) {
+                        return el.teamSocketId == socket.id;
+                       });
+                if (teamList[0].buzzOrder == 1){
+                    first();
+                }
+                 $('#textBuzz').html(teamList[0].teamName + " #"+teamList[0].buzzOrder );
+   
+            });
+
+            socket.on('start',function(){
+                enableBuzzer();
+            });
+
+            socket.on('stop',function(){
+                disableBuzzer();
+            });
+
+             $('#imgBuzzEnabled').click(function () {
+                socket.emit('buzz');
+                disableBuzzer();
+                audioElement.play();
+            })
+        </script>
+    </body>
+</html>

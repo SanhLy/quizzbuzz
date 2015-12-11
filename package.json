@@ -1,0 +1,26 @@
+{
+  "name": "quizzbuzz",
+  "version": "1.0.0",
+  "dependencies": {
+    "express": "latest",
+    "ejs": "latest",
+    "socket.io": "latest",
+    "cookie-session": "latest",
+    "body-parser" :"latest"
+  },
+  "author": "Sanh LY <sanh.ly1@gmail.com>",
+  "description": "A simple NodeJs buzzer application using websockets, with a master control",
+  "main": "app.js",
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "quiz",
+    "buzzer",
+    "buzz",
+    "team",
+    "play"
+  ],
+  "license": "ISC"
+}
