@@ -15,51 +15,58 @@
         margin-right: auto;
     }
     #textBuzz {
+        font-size : 28px;
         text-align:center;
+        margin:0;
+    }
+    .buzzDisabled {
+        background-color: grey;
+    }
+    .buzzEnabled {
+        background-color: green;
+    }
+    html, body {
+        margin: 0;
+        height: 100%;
     }
 
-        
 </style>
-    <body>
+    <body class="buzzDisabled">
+        <div id="header">
+            <p id="textBuzz">
+                    <%= teamName %>
+            </p>
+            <p style="text-align:center;">[<a href="<%=baseAddress%>/">Change team name</a>]</p>
+        </div>
 
         <div id="imgContainer">
-            <img id="imgBuzzDisabled" src="<%=baseAddress%>/images/RoundButtonUnpressed.png" width="65%" />
-            <img id="imgBuzzEnabled" src="<%=baseAddress%>/images/RoundButtonHover.png" width="65%" style="display:none"/>
             <img id="imgLikeASir" src="<%=baseAddress%>/images/sir.gif" style="display:none">
         </div>
-        <h1 id="textBuzz">
-                <%= teamName %>
-        </h1>
-        <p style="text-align:center;">[<a href="<%=baseAddress%>/">Change team name</a>]</p>
-
 
         <script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
         <script src="/socket.io/socket.io.js"></script>
         <script>
             var audioElement = document.createElement('audio');
+            var buzzerArmed = false;
             audioElement.setAttribute('src', '<%=baseAddress%>/sounds/MarioJump.wav');
             $.get();
 
 
             //Disable the buzzer
             function disableBuzzer(message) {
-                $('#imgBuzzEnabled').hide();
-                $('#imgBuzzDisabled').show();
                 $('#imgLikeASir').hide();
+                $('body').toggleClass('buzzEnabled buzzDisabled');
             }
 
             //Shows the 'like a Sir' guy
             function first(){
-                $('#imgBuzzEnabled').hide();
-                $('#imgBuzzDisabled').hide();  
                 $('#imgLikeASir').show();
             }
 
             //Enable the buzzer
             function enableBuzzer() {
                 $('#textBuzz').html('<%=teamName%>');
-                $('#imgBuzzEnabled').show();
-                $('#imgBuzzDisabled').hide();
+                $('body').toggleClass('buzzDisabled buzzEnabled');
                 $('#imgLikeASir').hide();
             }
 
@@ -85,16 +92,23 @@
 
             socket.on('start',function(){
                 enableBuzzer();
+                $('#header').hide();
+                buzzerArmed = true;
             });
 
             socket.on('stop',function(){
                 disableBuzzer();
             });
 
-             $('#imgBuzzEnabled').click(function () {
-                socket.emit('buzz');
-                disableBuzzer();
-                audioElement.play();
+             $('body').click(function () {
+                if (buzzerArmed == true) {
+                    socket.emit('buzz');
+                    disableBuzzer();
+                    audioElement.play();  
+                    buzzerArmed = false;  
+                    $('#header').show();            
+                }
+
             })
         </script>
     </body>
